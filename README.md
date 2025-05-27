@@ -1,6 +1,44 @@
+# 📝 Task List App
+
+A modern and minimal task management app built with **React**, **Apollo Client**, and **GraphQL** using **Next.js**. Easily manage your daily tasks, filter them by status, and keep track of due dates—all in a clean, responsive interface.
+
+> 🔗 **Live Project**: [https://task-manager-apollo-client-next-js-shvt.onrender.com/](https://task-manager-apollo-client-next-js-shvt.onrender.com/)
+
+---
+
+## 🚀 Features
+
+- ✅ View all tasks or filter by status  
+- ➕ Add new tasks with title, description, status, and due date  
+- 🔍 Dynamically fetch task statuses from the backend  
+- ♻️ UI automatically updates after adding or updating tasks  
+- 🧹 Clean, minimal design with inline styling  
+
+---
+
+## 🛠 Tech Stack
+
+- **Next.js** – React framework for fast and SEO-friendly apps  
+- **Apollo Client** – For GraphQL queries and mutations  
+- **GraphQL** – API for task data  
+- **TypeScript** – For better code structure and type safety  
+- **CSS-in-JS** – Inline styling for rapid development  
+
+---
+
+
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
+
+### 1. Clone the Repository
+
+```bash
+git clone [https://github.com/your-username/task-manager-apollo-client.git](https://github.com/devananda6200/task-manager-Apollo-Client-Next.js-frontend)
+cd task-manager-frontend
+
 
 First, run the development server:
 
@@ -16,21 +54,3 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
