@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, gql } from '@apollo/client';
 
+// --- Styles ---
 const containerStyle = {
   maxWidth: '700px',
   margin: '2rem auto',
@@ -81,8 +82,7 @@ const taskDescStyle = {
   color: '#444',
 };
 
-
-//queries to fetch all tasks or filter by status
+// --- GraphQL Queries & Mutations ---
 const GET_ALL_TASKS = gql`
   query getAllTasks {
     getAllTasks {
@@ -113,7 +113,6 @@ const GET_ALL_STATUSES = gql`
   }
 `;
 
-//mutation to add a new task
 const ADD_TASK = gql`
   mutation addTask($title: String!, $description: String, $status: String!, $dueDate: String) {
     addTask(title: $title, description: $description, status: $status, dueDate: $dueDate) {
@@ -126,11 +125,11 @@ const ADD_TASK = gql`
   }
 `;
 
-//mutation to update a task status
 const UPDATE_TASK_STATUS = gql`
   mutation updateTaskStatus($id: ID!, $status: String!) {
     updateTaskStatus(id: $id, status: $status) {
       id
+      title
       status
     }
   }
@@ -138,7 +137,6 @@ const UPDATE_TASK_STATUS = gql`
 
 export default function TaskListPage() {
   const [statusFilter, setStatusFilter] = useState<string>('All');
-
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -146,18 +144,17 @@ export default function TaskListPage() {
     dueDate: '',
   });
 
-  //fetch all available statuses for dropdowns
   const { data: statusData, loading: statusLoading, error: statusError } = useQuery(GET_ALL_STATUSES);
 
-  //Fetch tasks based on current status filter
-  const { loading, error, data, refetch } = useQuery(
-    statusFilter === 'All' ? GET_ALL_TASKS : GET_TASKS_BY_STATUS,
-    {
-      variables: statusFilter === 'All' ? {} : { status: statusFilter },
-    }
-  );
+  const {
+    loading,
+    error,
+    data,
+    refetch,
+  } = useQuery(statusFilter === 'All' ? GET_ALL_TASKS : GET_TASKS_BY_STATUS, {
+    variables: statusFilter === 'All' ? {} : { status: statusFilter },
+  });
 
-  //Mutation to add a new task
   const [addTask] = useMutation(ADD_TASK, {
     onCompleted: () => {
       refetch();
@@ -165,126 +162,115 @@ export default function TaskListPage() {
     },
   });
 
-  //mutation to update task status
   const [updateTaskStatus] = useMutation(UPDATE_TASK_STATUS, {
     onCompleted: () => {
       refetch();
     },
   });
 
-  
   function handleFilterChange(event: React.ChangeEvent<HTMLSelectElement>) {
     const value = event.target.value;
     setStatusFilter(value);
     refetch(value === 'All' ? {} : { status: value });
   }
 
-  
-  function handleInputChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
+  function handleInputChange(
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) {
     const { name, value } = event.target;
     setNewTask(prev => ({ ...prev, [name]: value }));
   }
 
-  
   function handleAddTask(event: React.FormEvent) {
     event.preventDefault();
-
-    
     if (!newTask.title.trim() || !newTask.status.trim()) {
       alert('Please provide both title and status for the task.');
       return;
     }
-
-    
     addTask({ variables: newTask });
   }
 
-  
   if (loading || statusLoading) return <p>Loading tasks...</p>;
-  if (error || statusError) return <p>Error loading data</p>;
+  if (error || statusError) return <p>Error loading data.</p>;
 
-  
-  const tasks = statusFilter === 'All' ? data.getAllTasks : data.getTasksByStatus;
+  const tasks = (statusFilter === 'All' ? data.getAllTasks : data.getTasksByStatus)?.slice().sort((a: any, b: any) =>
+    new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+  );
+
   const statusOptions = statusData?.getAllStatuses || [];
 
   return (
-  <div style={containerStyle}>
-    <h1 style={headingStyle}>Task List</h1>
+    <div style={containerStyle}>
+      <h1 style={headingStyle}>Task List</h1>
 
-    <div style={filterStyle}>
-      <label htmlFor="statusFilter">Filter by Status:</label>
-      <select id="statusFilter" onChange={handleFilterChange} value={statusFilter} style={inputStyle}>
-        <option value="All">All</option>
-        {statusOptions.map((status: string) => (
-          <option key={status} value={status}>
-            {status}
+      <div style={filterStyle}>
+        <label htmlFor="statusFilter">Filter by Status:</label>
+        <select id="statusFilter" onChange={handleFilterChange} value={statusFilter} style={inputStyle}>
+          <option value="All">All</option>
+          {statusOptions.map((status: string) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <form onSubmit={handleAddTask} style={formStyle}>
+        <h2>Add New Task</h2>
+
+        <input
+          name="title"
+          placeholder="Title"
+          value={newTask.title}
+          onChange={handleInputChange}
+          required
+          style={inputStyle}
+        />
+
+        <textarea
+          name="description"
+          placeholder="Description"
+          value={newTask.description}
+          onChange={handleInputChange}
+          style={{ ...inputStyle, height: '60px', resize: 'vertical' }}
+        />
+
+        <select name="status" value={newTask.status} onChange={handleInputChange} required style={inputStyle}>
+          <option value="" disabled>
+            Select status
           </option>
+          {statusOptions.map((status: string) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
+        </select>
+
+        <input
+          type="date"
+          name="dueDate"
+          value={newTask.dueDate}
+          onChange={handleInputChange}
+          style={inputStyle}
+        />
+
+        <button type="submit" style={buttonStyle}>
+          Add Task
+        </button>
+      </form>
+
+      <ul style={{ listStyleType: 'none', padding: 0 }}>
+        {tasks.map((task: any) => (
+          <li key={task.id} style={taskItemStyle}>
+            <span style={taskTitleStyle}>{task.title}</span>
+            <span style={taskStatusStyle}> — {task.status}</span>
+            <span style={taskDueDateStyle}>
+              Due: {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'N/A'}
+            </span>
+            <p style={taskDescStyle}>{task.description}</p>
+          </li>
         ))}
-      </select>
+      </ul>
     </div>
-
-    <form onSubmit={handleAddTask} style={formStyle}>
-      <h2>Add New Task</h2>
-
-      <input
-        name="title"
-        placeholder="Title"
-        value={newTask.title}
-        onChange={handleInputChange}
-        required
-        style={inputStyle}
-      />
-
-      <textarea
-        name="description"
-        placeholder="Description"
-        value={newTask.description}
-        onChange={handleInputChange}
-        style={{ ...inputStyle, height: '60px', resize: 'vertical' }}
-      />
-
-      <select
-        name="status"
-        value={newTask.status}
-        onChange={handleInputChange}
-        required
-        style={inputStyle}
-      >
-        <option value="" disabled>
-          Select status
-        </option>
-        {statusOptions.map((status: string) => (
-          <option key={status} value={status}>
-            {status}
-          </option>
-        ))}
-      </select>
-
-      <input
-        type="date"
-        name="dueDate"
-        value={newTask.dueDate}
-        onChange={handleInputChange}
-        style={inputStyle}
-      />
-
-      <button type="submit" style={buttonStyle}>
-        Add Task
-      </button>
-    </form>
-
-    <ul style={{ listStyleType: 'none', padding: 0 }}>
-      {tasks.map((task: any) => (
-        <li key={task.id} style={taskItemStyle}>
-          <span style={taskTitleStyle}>{task.title}</span>
-          <span style={taskStatusStyle}> — {task.status}</span>
-          <span style={taskDueDateStyle}>
-            Due: {new Date(task.dueDate).toLocaleDateString()}
-          </span>
-          <p style={taskDescStyle}>{task.description}</p>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
+  );
 }
