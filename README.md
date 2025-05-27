@@ -36,7 +36,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 ### 1. Clone the Repository
 
 ```bash
-git clone [https://github.com/your-username/task-manager-apollo-client.git](https://github.com/devananda6200/task-manager-Apollo-Client-Next.js-frontend)
+git clone https://github.com/devananda6200/task-manager-Apollo-Client-Next.js-frontend
 cd task-manager-frontend
 
 
